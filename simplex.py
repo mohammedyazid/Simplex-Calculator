@@ -1,5 +1,8 @@
+from kiwisolver import Constraint
 from simple_term_menu import TerminalMenu
+
 options = ['=', '>=', '<=']
+
 def Get_Data(Message,min,max):
     while True:
         try:
@@ -52,4 +55,43 @@ def Show_Data(Var_Number,Obj_Table,Const_Table,Results,Eq_Type):
             print(" + ",end="")
         if index==Var_Number:
                     index=0
-    
+
+def Preliminary_stage(Var_Number,Obj_Table,Const_Table,Results,Eq_Type):
+    Var_counter=0;const_counter=0;Constraint=[];X_counter=0
+    for i in range(0,len(Eq_Type)):
+        if Eq_Type[i]==">=":
+            Var_counter+=2
+        elif Eq_Type[i]=="=" or Eq_Type[i]=="<=":
+            Var_counter+=1
+    Constraint.append([])
+    for i in range(0,len(Const_Table)):
+        Constraint[const_counter].append(Const_Table[i])
+        if (i+1) % Var_Number == 0 and i != 0 or i == len(Const_Table)-1:
+            Obj_Table.append(0)
+            while X_counter<const_counter:
+                Constraint[const_counter].append(0)
+                X_counter+=1
+            if((const_counter+1)*2==len(Const_Table)):
+                Constraint[const_counter].append(0)
+            if Eq_Type[const_counter]==">=":
+                Constraint[const_counter].append(-1)
+                Constraint[const_counter].append(1)
+            elif Eq_Type[const_counter]=="=" or Eq_Type[const_counter]=="<=":
+                Constraint[const_counter].append(1)
+            while len(Constraint[const_counter])!=(Var_counter+Var_Number):
+                Constraint[const_counter].append(0)
+            X_counter=0
+            const_counter+=1
+            if const_counter*2!=len(Const_Table):
+                Constraint.append([])
+    return Constraint,Obj_Table
+def calculation(Constraint,Results,Tms,Z):
+    iteration=0;Hold=[]
+    while any(x<0 for x in Tms) == False:
+        print(f"Iteration number {iteration}:")
+        Max_Tms=Tms.index(max(Tms))
+        iteration+=1
+        for i in range(0,len(Constraint)):
+            Hold.append(Results[i]/Constraint[i][Max_Tms])
+        print(Hold[Hold.index(min(Hold))])
+        break
