@@ -1,3 +1,4 @@
+from ast import In
 from kiwisolver import Constraint
 from simple_term_menu import TerminalMenu
 
@@ -57,7 +58,7 @@ def Show_Data(Var_Number,Obj_Table,Const_Table,Results,Eq_Type):
                     index=0
 
 def Preliminary_stage(Var_Number,Obj_Table,Const_Table,Results,Eq_Type):
-    Var_counter=0;const_counter=0;Constraint=[];X_counter=0
+    Var_counter=0;const_counter=0;Constraint=[];X_counter=0;j=0
     for i in range(0,len(Eq_Type)):
         if Eq_Type[i]==">=":
             Var_counter+=2
@@ -68,30 +69,73 @@ def Preliminary_stage(Var_Number,Obj_Table,Const_Table,Results,Eq_Type):
         Constraint[const_counter].append(Const_Table[i])
         if (i+1) % Var_Number == 0 and i != 0 or i == len(Const_Table)-1:
             Obj_Table.append(0)
-            while X_counter<const_counter:
-                Constraint[const_counter].append(0)
-                X_counter+=1
-            if((const_counter+1)*2==len(Const_Table)):
-                Constraint[const_counter].append(0)
+            # while X_counter<const_counter:
+            #     Constraint[const_counter].append(0)
+            #     X_counter+=1
+            # if((const_counter+1)*2==len(Const_Table)):
+            #     Constraint[const_counter].append(0)
             if Eq_Type[const_counter]==">=":
+                while j!=X_counter:
+                    Constraint[const_counter].append(0)
+                    j+=1
                 Constraint[const_counter].append(-1)
                 Constraint[const_counter].append(1)
+                X_counter+=1
             elif Eq_Type[const_counter]=="=" or Eq_Type[const_counter]=="<=":
+                while j!=X_counter:
+                    Constraint[const_counter].append(0)
+                    j+=1
+                X_counter+=1
                 Constraint[const_counter].append(1)
-            while len(Constraint[const_counter])!=(Var_counter+Var_Number):
+            j=0
+            # print(len(Constraint[const_counter]))
+            # print(Var_counter+Var_Number)
+            while len(Constraint[const_counter])<(Var_counter+Var_Number):
                 Constraint[const_counter].append(0)
-            X_counter=0
+            
             const_counter+=1
             if const_counter*2!=len(Const_Table):
                 Constraint.append([])
-    return Constraint,Obj_Table
-def calculation(Constraint,Results,Tms,Z):
-    iteration=0;Hold=[]
-    while any(x<0 for x in Tms) == False:
-        print(f"Iteration number {iteration}:")
-        Max_Tms=Tms.index(max(Tms))
+    return Constraint,Obj_Table,X_counter
+def calculation(Constraint,Results,Tms,X_counter,Obj_Table):
+    iteration=0;Hold=[];Z=0
+    print("\n========================Solution========================\n")
+    print(f"==================Iteration number {iteration}====================")
+    print("Results:",Results)
+    print("Constraint Table:",Constraint)
+    print("Tms:",Tms)
+    iteration+=1
+    while any(x>0 for x in Tms):
+        print(f"==================Iteration number {iteration}====================")
+        In_Index=Tms.index(max(Tms))
+        print(f"X{In_Index+1} In ->")
         iteration+=1
         for i in range(0,len(Constraint)):
-            Hold.append(Results[i]/Constraint[i][Max_Tms])
-        print(Hold[Hold.index(min(Hold))])
-        break
+            Hold.append(Results[i]/Constraint[i][In_Index])
+        Out_Index=Hold.index(min(Hold))
+        print(f"X{Out_Index+X_counter} Out <-")
+        pivot=Constraint[Out_Index][In_Index]
+        # print("Pivot = "+str(pivot))
+        for i in range(0,len(Constraint[Out_Index])):
+            Constraint[Out_Index][i]=Constraint[Out_Index][i]/pivot
+        Results[Out_Index]=Results[Out_Index]/pivot
+
+        for i in range(0,len(Constraint)):
+            if i!=Out_Index:
+                temp=Constraint[i][In_Index]
+                for j in range(0,len(Constraint[i])):
+                    Constraint[i][j]=Constraint[i][j]-(Constraint[Out_Index][j]*temp)
+                Results[i]=Results[i]-(Results[Out_Index]*temp)
+        Tms_Pivot=Tms[In_Index]
+        for i in range(0,len(Tms)):
+            Tms[i]=Tms[i]-(Tms_Pivot*Constraint[Out_Index][i])
+        # for i in range(0,len(Results)):
+        #     Z=Z+Results[i]*Obj_Table[i]
+        # print("Results:",Results)
+        print("Constraint Table:",Constraint)
+        # print("Tms:",Tms)
+        Hold.clear()
+        if iteration==4:
+            break
+
+        # print("Z:",Z)
