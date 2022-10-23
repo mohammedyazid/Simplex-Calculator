@@ -1,7 +1,5 @@
-from ast import In
-from kiwisolver import Constraint
+import numpy as np
 from simple_term_menu import TerminalMenu
-
 options = ['=', '>=', '<=']
 
 def Get_Data(Message,min,max):
@@ -96,29 +94,54 @@ def Preliminary_stage(Var_Number,Obj_Table,Const_Table,Results,Eq_Type):
             const_counter+=1
             if const_counter*2!=len(Const_Table):
                 Constraint.append([])
-    return Constraint,Obj_Table,X_counter
-def calculation(Constraint,Results,Tms,X_counter,Obj_Table):
-    iteration=0;Hold=[];Z=0
+            print(Obj_Table)
+    return Constraint,Obj_Table
+
+def Round(Table):
+    for i in range(0,len(Table)):
+        for j in range (0,len(Table[i])):
+            Table[i][j] = round(Table[i][j], 2)
+    return Table
+def ToInt(Table):
+    for i in range(0,len(Table)):
+       Table[i]=int(Table[i])
+    return Table
+def ToIntMatrix(Table):
+    for i in range(0,len(Table)):
+        for j in range (0,len(Table[i])):
+            Table[i][j]=int(Table[i][j])
+    return Table
+def calculation(Constraint,Results,X_counter,Obj_Table):
+    iteration=0;Hold=[];Z=0;Base=[];Tms=[]
+    # Obj_Table=[3,2,0,0,0]
     print("\n========================Solution========================\n")
     print(f"==================Iteration number {iteration}====================")
+   
+    iteration+=1
+    for i in range(0,len(Results)):
+        Base.append(0)
+    for i in range(0,len(Obj_Table)):
+        Tms.append(Obj_Table[i])
     print("Results:",Results)
     print("Constraint Table:",Constraint)
     print("Tms:",Tms)
-    iteration+=1
     while any(x>0 for x in Tms):
+        Z=0
         print(f"==================Iteration number {iteration}====================")
         In_Index=Tms.index(max(Tms))
         print(f"X{In_Index+1} In ->")
         iteration+=1
         for i in range(0,len(Constraint)):
             Hold.append(Results[i]/Constraint[i][In_Index])
-        Out_Index=Hold.index(min(Hold))
+        arr=np.array(Hold)
+        Out_Index=np.where(arr > 0, arr, np.inf).argmin()
+        
         print(f"X{Out_Index+X_counter} Out <-")
         pivot=Constraint[Out_Index][In_Index]
         # print("Pivot = "+str(pivot))
         for i in range(0,len(Constraint[Out_Index])):
             Constraint[Out_Index][i]=Constraint[Out_Index][i]/pivot
-        Results[Out_Index]=Results[Out_Index]/pivot
+        Results[Out_Index]=round(Results[Out_Index]/pivot,2)
 
         for i in range(0,len(Constraint)):
             if i!=Out_Index:
@@ -128,14 +151,24 @@ def calculation(Constraint,Results,Tms,X_counter,Obj_Table):
                 Results[i]=Results[i]-(Results[Out_Index]*temp)
         Tms_Pivot=Tms[In_Index]
         for i in range(0,len(Tms)):
-            Tms[i]=Tms[i]-(Tms_Pivot*Constraint[Out_Index][i])
+            # break
+            Tms[i]=round(Tms[i]-(Tms_Pivot*Constraint[Out_Index][i]),2)
         # for i in range(0,len(Results)):
         #     Z=Z+Results[i]*Obj_Table[i]
         # print("Results:",Results)
-        print("Constraint Table:",Constraint)
-        # print("Tms:",Tms)
-        Hold.clear()
-        if iteration==4:
-            break
 
-        # print("Z:",Z)
+        # Round The constraints
+        print("Pivot = "+str(pivot))
+        Constraint=Round(Constraint)
+        # print("Constraint Table:",Constraint)
+        print("Tms:",Tms)
+        print("Results:",Results)
+        # print(Obj_Table)
+        Base[Out_Index]=Obj_Table[In_Index]
+        for i in range(0,len(Results)):
+            Z=Z+Results[i]*Base[i]
+        print("Z = "+str(Z))
+        Hold.clear()
+        print("Base:",Base)
+    return Z
+        
