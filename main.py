@@ -1,12 +1,31 @@
-from simplex import *
+from Code.simplex import *
+import pyfiglet
 
-Obj_Table=[];Const_Table=[];Results=[];Eq_Type=[];N_Variables=0;N_Constraints=0
-Constraints=[]
+##Variables Declaration
+Objective_Function,Constraints,Results,Constraint_Type= ([] for i in range(4))
+Variables_Number=0;Constraints_Number=0
 
-N_Variables=Get_Data("How many variables are there?\n",2,20)
-N_constraints=Get_Data("How many constraints are there?\n",1,20)
-Obj_Table,Const_Table,Results,Eq_Type=Fill_Tables(N_Variables,N_constraints,Obj_Table,Const_Table,Results,Eq_Type)
-Show_Data(N_Variables,Obj_Table,Const_Table,Results,Eq_Type)
-Constraint,Obj_Table=Preliminary_stage(N_Variables,Obj_Table,Const_Table,Results,Eq_Type)
+##Printing Banner
+ascii_banner = pyfiglet.figlet_format("Simplex Calculator")
+print(ascii_banner)
 
-print(f"Max Z = {round(calculation(Constraint,Results,N_Variables+1,Obj_Table),2)}")
+##Get the Number of Variables and Constraints
+Variables_Number=Get_Data("How many variables are there?\n",2,20)
+Constraints_Number=Get_Data("How many constraints are there?\n",1,20)
+
+##Fill Arrays with user inputs
+Objective_Function,Constraints,Results,Constraint_Type=Fill_Tables(Variables_Number,Constraints_Number,Objective_Function,Constraints,Results,Constraint_Type)
+
+##Show Data to user
+Show_Data(Variables_Number,Objective_Function,Constraints,Results,Constraint_Type)
+
+##Prepare Arrays for the calculation part
+Constraints,Objective_Function=Preliminary_stage(Variables_Number,Objective_Function,Constraints,Results,Constraint_Type)
+
+##Convert Arrays values to Integers
+Objective_Function=ToInt(Objective_Function)
+Constraint=ToIntMatrix(Constraints)
+Results=ToInt(Results)
+
+##Calculation + Printing the result
+print(f"Max Z = {round(calculation(Constraint,Results,Variables_Number+1,Objective_Function),2)}")

@@ -1,13 +1,43 @@
-from simplex import *
+from Code.simplex import *
+import pyfiglet
 
-Obj_Table=[40,30]
-Const_Table=[1,2,2,1]
-Results=[12,16]
-Eq_Type=['<=','<=']
-N_Variables=2
-N_Constraints=2
+##Variables Declaration
+# Objective_Function=[40,30]
+# Constraints=[1,2,2,1]
+# Results=[12,16]
+# Constraint_Type=['<=','<=']
+# Variables_Number=2
+# Constraints_Number=2
 
-Show_Data(N_Variables,Obj_Table,Const_Table,Results,Eq_Type)
-Constraint,Obj_Table=Preliminary_stage(N_Variables,Obj_Table,Const_Table,Results,Eq_Type)
-Obj_Table=ToInt(Obj_Table);Constraint=ToIntMatrix(Constraint);Results=ToInt(Results)
-print(f"Max Z = {round(calculation(Constraint,Results,N_Variables+1,Obj_Table),2)}")
+# Objective_Function=[30000,40000]
+# Constraints=[2,1,1,2,0,1]
+# Results=[800,700,300]
+# Constraint_Type=['<=','<=','<=']
+# Variables_Number=2
+# Constraints_Number=3
+
+Objective_Function=[2,1]
+Constraints=[1,-1,2,-1]
+Results=[10,40]
+Constraint_Type=['<=','<=']
+Variables_Number=2
+Constraints_Number=2
+
+##Printing Banner
+ascii_banner = pyfiglet.figlet_format("Simplex Calculator")
+print(ascii_banner)
+
+##Show Data to user
+Show_Data(Variables_Number,Objective_Function,Constraints,Results,Constraint_Type)
+
+##Prepare Arrays for the calculation part
+Constraints,Objective_Function=Preliminary_stage(Variables_Number,Objective_Function,Constraints,Results,Constraint_Type)
+
+##Convert Arrays values to Integers
+Objective_Function=ToInt(Objective_Function)
+Constraint=ToIntMatrix(Constraints)
+Results=ToInt(Results)
+
+##Calculation + Printing the result
+print(f"Max Z = {round(calculation(Constraint,Results,Variables_Number+1,Objective_Function),2)}")
+
